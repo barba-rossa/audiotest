@@ -66,8 +66,13 @@ jobs:
 
       - name: Empacotar ZIP
         run: |
-          cd release
-          zip -r transcriber-${{ runner.os }}.zip ./*
+          mkdir -p release
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            powershell Compress-Archive -Path release\* -DestinationPath release\transcriber-windows.zip
+          else
+            cd release
+            zip -r transcriber-${{ runner.os }}.zip ./*
+          fi
 
       - name: Upload como artefato
         uses: actions/upload-artifact@v4
