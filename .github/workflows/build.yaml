@@ -40,14 +40,15 @@ jobs:
 
       - name: Gerar executável com PyInstaller
         run: |
-            if [[ "$RUNNER_OS" == "Windows" ]]; then
-              WHISPER_CACHE=$(cygpath -u "$LOCALAPPDATA/Cache/whisper")
-              pyinstaller main.py --onefile --noconsole \
-              --add-data="$WHISPER_CACHE;whisper_cache"
-            else
-              pyinstaller main.py --onefile --noconsole \
-              --add-data="$HOME/.cache/whisper:whisper_cache"
-            fi
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "$WHISPER_CACHE"
+            WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
+            pyinstaller main.py --onefile --noconsole \
+            --add-data="$WHISPER_CACHE;whisper_cache"
+          else
+            pyinstaller main.py --onefile --noconsole \
+            --add-data="$HOME/.cache/whisper:whisper_cache"
+          fi
 
       - name: Renomear executável
         run: |
