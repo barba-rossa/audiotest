@@ -56,7 +56,7 @@ jobs:
           zip -r transcriber-${{ runner.os }}.zip ./*
 
       - name: Upload como artefato
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: transcriber-${{ runner.os }}
           path: release/transcriber-${{ runner.os }}.zip
