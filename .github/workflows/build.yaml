@@ -31,6 +31,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade wheel
           pip install pyinstaller torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+          pip install numpy==1.24
           pip install git+https://github.com/openai/whisper.git
 
       - name: Baixar modelo Whisper base
