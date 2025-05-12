@@ -40,12 +40,13 @@ jobs:
 
       - name: Gerar executável com PyInstaller
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            pyinstaller main.py --onefile --noconsole \
-              --add-data "C:\\Users\\runneradmin\\AppData\\Local\\Cache\\whisper;whisper_cache"
-          else
-            pyinstaller main.py --onefile --noconsole \
-              --add-data "$HOME/.cache/whisper:whisper_cache"
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                pyinstaller main.py --onefile --noconsole \
+                --add-data "$env:LOCALAPPDATA\\Cache\\whisper;whisper_cache"
+              else
+                pyinstaller main.py --onefile --noconsole \
+                --add-data "$HOME/.cache/whisper:whisper_cache"
+              fi
 
       - name: Renomear executável
         run: |
