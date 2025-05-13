@@ -3,7 +3,7 @@ name: Build Transcriber
 on:
   push:
     tags:
-      - 'v*'   # Ex: v1.0.0 para gerar release
+      - 'v*'  # Gera release automaticamente ao fazer push de uma tag como v1.0.0
   workflow_dispatch:
 
 jobs:
@@ -28,8 +28,7 @@ jobs:
 
       - name: Instalar dependências
         run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade wheel
+          python -m pip install --upgrade pip wheel
           pip install pyinstaller torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
           pip install numpy==1.24
           pip install git+https://github.com/openai/whisper.git
@@ -40,25 +39,20 @@ jobs:
 
       - name: Gerar executável com PyInstaller
         run: |
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
+          mkdir -p release
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
             WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
-            echo "WHISPER_CACHE = $WHISPER_CACHE"
-            mkdir -p "$WHISPER_CACHE"
-            python -c "import whisper; whisper.load_model('base')"
-            pyinstaller main.py --onefile --noconsole \
-              --add-data="$WHISPER_CACHE;whisper_cache"
-
+            pyinstaller main.py --onefile --noconsole --add-data "$WHISPER_CACHE;whisper_cache"
           else
-            pyinstaller main.py --onefile --noconsole \
-            --add-data="$HOME/.cache/whisper:whisper_cache"
+            WHISPER_CACHE="$HOME/.cache/whisper"
+            pyinstaller main.py --onefile --noconsole --add-data "$WHISPER_CACHE:whisper_cache"
           fi
 
       - name: Renomear executável
         run: |
-          mkdir -p release
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
             mv dist/main.exe release/transcriber-windows.exe
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          elif [[ "${{ runner.os }}" == "macOS" ]]; then
             mv dist/main release/transcriber-macos
           else
             mv dist/main release/transcriber-linux
@@ -66,24 +60,17 @@ jobs:
 
       - name: Empacotar ZIP
         run: |
-          mkdir -p artifacts
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            powershell -Command "Compress-Archive -Path release\\* -DestinationPath artifacts/transcriber-windows.zip"
-          else
-            cd release
-            zip -r ../artifacts/transcriber-${{ runner.os == 'macOS' && 'macos' || runner.os == 'Linux' && 'linux' || 'unknown' }}.zip ./*
-          fi
-
-
-      - name: Debug arquivos
-        run: ls -R
+          OS_LOWER=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+          mkdir -p artifacts/transcriber-$OS_LOWER
+          cd release
+          zip -r ../artifacts/transcriber-$OS_LOWER/transcriber-$OS_LOWER.zip ./*
+          cd ..
 
       - name: Upload como artefato
         uses: actions/upload-artifact@v4
         with:
-          name: transcriber-${{ runner.os == 'Windows' && 'windows' || runner.os == 'macOS' && 'macos' || 'linux' }}
-          path: artifacts/transcriber-${{ runner.os == 'Windows' && 'windows' || runner.os == 'macOS' && 'macos' || 'linux' }}.zip
-
+          name: transcriber-${{ runner.os }}
+          path: artifacts/transcriber-${{ runner.os }}/*.zip
 
   release:
     needs: build
@@ -101,6 +88,6 @@ jobs:
           name: Release ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/transcriber-windows/transcriber-windows.zip
-            artifacts/transcriber-macos/transcriber-macos.zip
-            artifacts/transcriber-linux/transcriber-linux.zip
+            artifacts/transcriber-windows/*.zip
+            artifacts/transcriber-macos/*.zip
+            artifacts/transcriber-linux/*.zip
