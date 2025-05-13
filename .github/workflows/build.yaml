@@ -110,5 +110,5 @@ jobs:
           name: Release ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/**/*.zip  # Pega qualquer .zip corretamente
+            artifacts/**/*.zip
 
