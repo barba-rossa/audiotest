@@ -82,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: transcriber-${{ runner.os }}
-          path: artifacts/transcriber-${{ runner.os }}/*.zip
+          path: artifacts/transcriber-${{ runner.os | toLower }}/*.zip
 
   release:
     needs: build
