@@ -97,6 +97,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          merge-multiple: true 
+
+      - name: Verificar conteúdo dos artifacts (debug)
+        run: |
+          echo "=== Conteúdo de 'artifacts' ==="
+          find artifacts -type f
 
       - name: Criar release
         uses: softprops/action-gh-release@v1
@@ -104,6 +110,5 @@ jobs:
           name: Release ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           files: |
-            artifacts/transcriber-windows/*.zip
-            artifacts/transcriber-macos/*.zip
-            artifacts/transcriber-linux/*.zip
+            artifacts/**/*.zip  # Pega qualquer .zip corretamente
+
