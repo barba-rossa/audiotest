@@ -46,16 +46,16 @@ jobs:
           mkdir -p release
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
-            mkdir -p "$WHISPER_CACHE"
+            mkdir -p "$WHISPER_CACHE\\assets"
             python -c "import whisper; whisper.load_model('base')"
             pyinstaller main.py --onefile --noconsole \
-              --add-data="$WHISPER_CACHE;whisper_cache"
+              --add-data="$WHISPER_CACHE\\assets;whisper/assets"
           else
             WHISPER_CACHE="$HOME/.cache/whisper"
+            python -c "import whisper; whisper.load_model('base')"
             pyinstaller main.py --onefile --noconsole \
-              --add-data="$WHISPER_CACHE:whisper_cache"
+              --add-data="$WHISPER_CACHE/assets:whisper/assets"
           fi
-
 
       - name: Renomear executável
         run: |
