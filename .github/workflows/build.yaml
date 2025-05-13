@@ -47,28 +47,13 @@ jobs:
 
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
-            ASSETS_PATH="$WHISPER_CACHE\\assets"
-            mkdir -p "$ASSETS_PATH"
-            python -c "
-          import whisper
-          import numpy as np
-          model = whisper.load_model('base')
-          model.log_mel_spectrogram(np.zeros((1, 16000))).numpy()
-          "
             pyinstaller main.py --onefile --noconsole ^
-              --add-data=\"$ASSETS_PATH;whisper/assets\"
+              --add-data="$WHISPER_CACHE;whisper/assets"
           else
-            WHISPER_CACHE=\"$HOME/.cache/whisper\"
-            ASSETS_PATH=\"$WHISPER_CACHE/assets\"
-            python -c '
-          import whisper
-          import numpy as np
-          model = whisper.load_model("base")
-          model.log_mel_spectrogram(np.zeros((1, 16000))).numpy()
-          '
-                      pyinstaller main.py --onefile --noconsole \
-                        --add-data=\"$ASSETS_PATH:whisper/assets\"
-                    fi
+            WHISPER_CACHE="$HOME/.cache/whisper"
+            pyinstaller main.py --onefile --noconsole \
+              --add-data="$WHISPER_CACHE:whisper/assets"
+          fi
 
       - name: Renomear executável
         run: |
@@ -93,7 +78,6 @@ jobs:
             cd ..
           fi
 
-
       - name: Definir OS em minúsculas
         run: echo "OS_LOWER=$(echo '${{ runner.os }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
@@ -102,7 +86,6 @@ jobs:
         with:
           name: transcriber-${{ env.OS_LOWER }}
           path: artifacts/transcriber-${{ env.OS_LOWER }}/*.zip
-
 
   release:
     needs: build
@@ -127,4 +110,3 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             artifacts/**/*.zip
-
