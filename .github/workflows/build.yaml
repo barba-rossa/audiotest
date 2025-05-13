@@ -46,24 +46,26 @@ jobs:
           mkdir -p release
 
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
-            pyinstaller main.py --onefile --noconsole ^
-              --add-data="$WHISPER_CACHE;whisper/assets"
+            WHISPER_CACHE="$LOCALAPPDATA/Cache/whisper"
+            python -c "import whisper; whisper.load_model('base')"
+            pyinstaller main.py --onefile --noconsole \
+              --add-data=\"$WHISPER_CACHE;whisper/cache\"
           else
             WHISPER_CACHE="$HOME/.cache/whisper"
+            python -c "import whisper; whisper.load_model('base')"
             pyinstaller main.py --onefile --noconsole \
-              --add-data="$WHISPER_CACHE:whisper/assets"
+              --add-data=\"$WHISPER_CACHE:whisper/cache\"
           fi
 
-      - name: Renomear executável
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            mv dist/main.exe release/transcriber-windows.exe
-          elif [[ "${{ runner.os }}" == "macOS" ]]; then
-            mv dist/main release/transcriber-macos
-          else
-            mv dist/main release/transcriber-linux
-          fi
+            - name: Renomear executável
+              run: |
+                if [[ "${{ runner.os }}" == "Windows" ]]; then
+                  mv dist/main.exe release/transcriber-windows.exe
+                elif [[ "${{ runner.os }}" == "macOS" ]]; then
+                  mv dist/main release/transcriber-macos
+                else
+                  mv dist/main release/transcriber-linux
+                fi
 
       - name: Empacotar ZIP
         run: |
