@@ -66,18 +66,23 @@ jobs:
 
       - name: Empacotar ZIP
         run: |
+          mkdir -p artifacts
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            powershell -Command "Compress-Archive -Path release\\* -DestinationPath transcriber-windows.zip"
+            powershell -Command "Compress-Archive -Path release\\* -DestinationPath artifacts/transcriber-windows.zip"
           else
             cd release
-            zip -r ../transcriber-${{ runner.os }}.zip ./*
+            zip -r ../artifacts/transcriber-${{ runner.os == 'macOS' && 'macos' || runner.os == 'Linux' && 'linux' || 'unknown' }}.zip ./*
           fi
+
+
+      - name: Debug arquivos
+        run: ls -R
 
       - name: Upload como artefato
         uses: actions/upload-artifact@v4
         with:
           name: transcriber-${{ runner.os == 'Windows' && 'windows' || runner.os == 'macOS' && 'macos' || 'linux' }}
-          path: release/transcriber-${{ runner.os == 'Windows' && 'windows' || runner.os == 'macOS' && 'macos' || 'linux' }}.zip
+          path: artifacts/transcriber-${{ runner.os == 'Windows' && 'windows' || runner.os == 'macOS' && 'macos' || 'linux' }}.zip
 
 
   release:
