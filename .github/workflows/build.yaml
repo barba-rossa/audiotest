@@ -71,7 +71,7 @@ jobs:
           else
             cd release
             zip -r ../transcriber-${{ runner.os }}.zip ./*
-
+          fi
 
       - name: Upload como artefato
         uses: actions/upload-artifact@v4
