@@ -39,13 +39,19 @@ jobs:
 
       - name: Gerar executável com PyInstaller
         run: |
+          set -e
           mkdir -p release
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            # Criar o diretório de cache do Whisper se não existir
             WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
-            pyinstaller main.py --onefile --noconsole --add-data "$WHISPER_CACHE;whisper_cache"
+            mkdir -p "$WHISPER_CACHE"  # Criação do diretório se não existir
+            python -c "import whisper; whisper.load_model('base')"  # Isso garante que o cache seja gerado
+            pyinstaller main.py --onefile --noconsole ^
+              --add-data="$WHISPER_CACHE;whisper_cache"
           else
             WHISPER_CACHE="$HOME/.cache/whisper"
-            pyinstaller main.py --onefile --noconsole --add-data "$WHISPER_CACHE:whisper_cache"
+            pyinstaller main.py --onefile --noconsole \
+              --add-data="$WHISPER_CACHE:whisper_cache"
           fi
 
       - name: Renomear executável
