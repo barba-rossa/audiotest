@@ -68,9 +68,15 @@ jobs:
         run: |
           OS_LOWER=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           mkdir -p artifacts/transcriber-$OS_LOWER
-          cd release
-          zip -r ../artifacts/transcriber-$OS_LOWER/transcriber-$OS_LOWER.zip ./*
-          cd ..
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            powershell.exe -Command "Compress-Archive -Path release\\* -DestinationPath artifacts\\transcriber-$OS_LOWER\\transcriber-$OS_LOWER.zip"
+          else
+            cd release
+            zip -r ../artifacts/transcriber-$OS_LOWER/transcriber-$OS_LOWER.zip ./*
+            cd ..
+          fi
+
 
       - name: Upload como artefato
         uses: actions/upload-artifact@v4
