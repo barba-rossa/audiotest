@@ -37,7 +37,7 @@ jobs:
         run: |
           python -c "import whisper; whisper.load_model('base')"
 
-            - name: Gerar executável com PyInstaller
+      - name: Gerar executável com PyInstaller
         run: |
           set -e
           mkdir -p release
@@ -52,6 +52,7 @@ jobs:
             pyinstaller main.py --onefile --noconsole \
               --add-data="$WHISPER_CACHE:whisper_cache"
           fi
+
 
       - name: Renomear executável
         run: |
