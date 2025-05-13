@@ -44,18 +44,31 @@ jobs:
         run: |
           set -e
           mkdir -p release
+
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
-            mkdir -p "$WHISPER_CACHE\\assets"
-            python -c "import whisper; whisper.load_model('base')"
-            pyinstaller main.py --onefile --noconsole \
-              --add-data="$WHISPER_CACHE\\assets;whisper/assets"
+            ASSETS_PATH="$WHISPER_CACHE\\assets"
+            mkdir -p "$ASSETS_PATH"
+            python -c "
+          import whisper
+          import numpy as np
+          model = whisper.load_model('base')
+          model.log_mel_spectrogram(np.zeros((1, 16000))).numpy()
+          "
+            pyinstaller main.py --onefile --noconsole ^
+              --add-data=\"$ASSETS_PATH;whisper/assets\"
           else
-            WHISPER_CACHE="$HOME/.cache/whisper"
-            python -c "import whisper; whisper.load_model('base')"
-            pyinstaller main.py --onefile --noconsole \
-              --add-data="$WHISPER_CACHE/assets:whisper/assets"
-          fi
+            WHISPER_CACHE=\"$HOME/.cache/whisper\"
+            ASSETS_PATH=\"$WHISPER_CACHE/assets\"
+            python -c '
+          import whisper
+          import numpy as np
+          model = whisper.load_model("base")
+          model.log_mel_spectrogram(np.zeros((1, 16000))).numpy()
+          '
+                      pyinstaller main.py --onefile --noconsole \
+                        --add-data=\"$ASSETS_PATH:whisper/assets\"
+                    fi
 
       - name: Renomear executável
         run: |
