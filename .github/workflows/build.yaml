@@ -3,8 +3,11 @@ name: Build Transcriber
 on:
   push:
     tags:
-      - 'v*'  # Gera release automaticamente ao fazer push de uma tag como v1.0.0
+      - 'v*'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
