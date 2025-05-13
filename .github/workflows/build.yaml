@@ -37,16 +37,15 @@ jobs:
         run: |
           python -c "import whisper; whisper.load_model('base')"
 
-      - name: Gerar executável com PyInstaller
+            - name: Gerar executável com PyInstaller
         run: |
           set -e
           mkdir -p release
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            # Criar o diretório de cache do Whisper se não existir
             WHISPER_CACHE="$LOCALAPPDATA\\Cache\\whisper"
-            mkdir -p "$WHISPER_CACHE"  # Criação do diretório se não existir
-            python -c "import whisper; whisper.load_model('base')"  # Isso garante que o cache seja gerado
-            pyinstaller main.py --onefile --noconsole ^
+            mkdir -p "$WHISPER_CACHE"
+            python -c "import whisper; whisper.load_model('base')"
+            pyinstaller main.py --onefile --noconsole \
               --add-data="$WHISPER_CACHE;whisper_cache"
           else
             WHISPER_CACHE="$HOME/.cache/whisper"
